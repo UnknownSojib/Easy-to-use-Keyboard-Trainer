@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Expert IT And Computer Training Center</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #e9f1f7;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 20px;
+        min-height: 100vh;
+    }
+
+    .app {
+        width: 700px;
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        overflow: hidden;
+        padding-bottom: 20px;
+    }
+
+    .header {
+        background: #1f6fb2;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .content {
+        padding: 20px;
+    }
+
+    .quote-box {
+        background: #f5f9fc;
+        border-left: 4px solid #1f6fb2;
+        padding: 12px;
+        margin-bottom: 15px;
+        font-size: 15px;
+        line-height: 1.5;
+        max-height: none;
+        overflow: visible;
+        white-space: pre-wrap;
+    }
+
+    textarea {
+        width: 100%;
+        height: 150px;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+    }
+
+    textarea:focus {
+        outline: none;
+        border-color: #1f6fb2;
+    }
+
+    .stats {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+    }
+
+    .stat-box {
+        width: 32%;
+        background: #f5f9fc;
+        border: 1px solid #cfe2f3;
+        text-align: center;
+        padding: 10px;
+        border-radius: 4px;
+    }
+
+    .stat-box span {
+        display: block;
+        font-size: 13px;
+        color: #555;
+    }
+
+    .stat-box strong {
+        font-size: 18px;
+        color: #1f6fb2;
+    }
+
+    button {
+        margin-top: 15px;
+        padding: 8px 20px;
+        border: none;
+        background: #1f6fb2;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    button:hover {
+        background: #155d8b;
+    }
+
+    .correct { color: green; }
+    .wrong { color: red; }
+    .normal { color: #000; }
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">Expert IT And Computer Training Center</div>
+
+    <div class="content">
+        <div class="quote-box" id="quote"></div>
+
+        <textarea id="input" placeholder="Start typing here..." oninput="handleTyping()" onkeydown="handleSpace(event)"></textarea>
+
+        <div class="stats">
+            <div class="stat-box">
+                <span>Time</span>
+                <strong id="timer">600s</strong>
+            </div>
+            <div class="stat-box">
+                <span>WPM</span>
+                <strong id="wpm">0</strong>
+            </div>
+            <div class="stat-box">
+                <span>Accuracy</span>
+                <strong id="accuracy">0%</strong>
+            </div>
+        </div>
+
+        <button onclick="restartTest()">Restart Test</button>
+    </div>
+	<p style="text-align: center;>Author:Sojib Islam</p>
+	<p style="text-align: center;><a href="http://sohayokit.com/">info@sohayokit.com</a></p>
+</div>
+
+<script>
+const quotes = [
+`Typing is an essential skill in today's digital world. Improving typing speed and accuracy can save time and increase productivity. By practicing regularly, you can type faster without looking at the keyboard. Many typing software programs offer lessons, games, and tests to help learners improve. Focusing on proper finger placement and rhythm is key. Accuracy matters more than speed at the beginning. Over time, speed naturally increases. Typing efficiently reduces errors and stress when working on computers. Regular practice also improves concentration and hand coordination. Everyone can become a proficient typist with dedication and patience.`,
+
+`Learning to type quickly and accurately is important for students, professionals, and anyone using a computer daily. Regular practice increases typing speed and reduces mistakes. Proper posture, finger placement, and rhythm make typing easier. Typing software and online games provide fun ways to improve. Focus on accuracy first, then speed will follow naturally. Consistency is the key to improvement. Taking breaks to relax fingers and hands also helps prevent fatigue. Over time, typing becomes almost automatic, letting you focus more on your work. Everyone can enhance typing skills with dedication and practice.`,
+
+`Fast and accurate typing is not only useful but necessary in a technology-driven world. Typing regularly strengthens hand coordination and concentration. Beginners should focus on learning the correct finger positions. Typing exercises and tests help track progress. Accuracy should be prioritized initially, as speed will develop naturally with practice. Using proper posture reduces strain on hands and wrists. Many online platforms offer interactive typing lessons, speed tests, and fun games to motivate learners. Mastering typing allows individuals to complete tasks more efficiently, enhancing productivity in work, studies, and communication. Patience and daily practice yield the best results.`
+];
+
+let quoteText = "";
+const quoteBox = document.getElementById("quote");
+const input = document.getElementById("input");
+const timerDisplay = document.getElementById("timer");
+const wpmDisplay = document.getElementById("wpm");
+const accuracyDisplay = document.getElementById("accuracy");
+
+let startTime = null;
+let timer = null;
+let timeLeft = 600; // 10 minutes
+
+function pickRandomQuote() {
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    quoteText = quotes[randomIndex];
+}
+
+function displayQuote() {
+    quoteBox.innerHTML = "";
+    for (let char of quoteText) {
+        const span = document.createElement("span");
+        span.textContent = char;
+        span.classList.add("normal");
+        quoteBox.appendChild(span);
+    }
+}
+
+function handleTyping() {
+    if (!startTime) {
+        startTime = new Date();
+        timer = setInterval(countdown, 1000);
+    }
+
+    const typed = input.value;
+    const spans = quoteBox.querySelectorAll("span");
+    let correctChars = 0;
+
+    for (let i = 0; i < spans.length; i++) {
+        if (!typed[i]) {
+            spans[i].className = "normal";
+        } else if (typed[i] === quoteText[i]) {
+            spans[i].className = "correct";
+            correctChars++;
+        } else {
+            spans[i].className = "wrong";
+        }
+    }
+
+    const accuracy = typed.length ? Math.round((correctChars / typed.length) * 100) : 0;
+    accuracyDisplay.innerText = accuracy + "%";
+
+    // Auto-complete entire text if finished early
+    if (typed.length >= quoteText.length) {
+        input.value = quoteText;
+        clearInterval(timer);
+        calculateWPM();
+        input.disabled = true;
+    }
+}
+
+// Auto-complete last word when space is pressed
+function handleSpace(event) {
+    if (event.key === " ") {
+        const typedWords = input.value.split(/\s+/);
+        const quoteWords = quoteText.split(/\s+/);
+
+        const currentIndex = typedWords.length - 1;
+
+        if (quoteWords[currentIndex] && typedWords[currentIndex] !== quoteWords[currentIndex]) {
+            // Replace last typed word with correct one
+            typedWords[currentIndex] = quoteWords[currentIndex];
+            input.value = typedWords.join(" ") + " ";
+            handleTyping(); // update highlights
+        }
+    }
+}
+
+function countdown() {
+    if (timeLeft <= 0) {
+        clearInterval(timer);
+        input.disabled = true;
+        calculateWPM();
+        alert("Time's up!");
+        return;
+    }
+    timeLeft--;
+    timerDisplay.innerText = timeLeft + "s";
+}
+
+function calculateWPM() {
+    const typed = input.value.trim();
+    const minutes = (600 - timeLeft) / 60;
+    const wordCount = typed.split(/\s+/).length;
+    const wpm = Math.round(wordCount / minutes);
+    wpmDisplay.innerText = wpm;
+}
+
+function restartTest() {
+    clearInterval(timer);
+    startTime = null;
+    timer = null;
+    timeLeft = 600;
+    input.value = "";
+    input.disabled = false;
+    timerDisplay.innerText = timeLeft + "s";
+    wpmDisplay.innerText = "0";
+    accuracyDisplay.innerText = "0%";
+    pickRandomQuote();
+    displayQuote();
+    input.focus();
+}
+
+// Initialize
+pickRandomQuote();
+displayQuote();
+</script>
+
+</body>
+
+</html>
